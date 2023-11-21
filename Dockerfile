@@ -7,7 +7,5 @@ ADD . .
 ENV HOST_IP=0.0.0.0
 ENV HOST_PORT=22
 
-RUN python main.py
-
 #Comando para ejecutar proceso principal
-CMD ["python", "main.py"]
+CMD ["python", "./src/main.py"]
