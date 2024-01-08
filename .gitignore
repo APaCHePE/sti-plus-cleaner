@@ -1,0 +1,83 @@
+# Byte-compiled / optimized / temporary files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*$py.class
+# Logs and databases
+*.log
+*.sqlitedb
+
+# Environment variable file
+#.env
+
+# Local configuration file (if using one)
+instance/
+
+# Flask Debug Toolbar
+.toolbar/
+
+# Instance folder
+instance/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+
+# PyCharm project files
+.idea
+
+# Jupyter Notebook files
+.ipynb_checkpoints/
+
+# Virtual environment
+venv/
+ENV/
+env/
+
+
+# Project specific directories
+# Compiled source
+*.com
+*.dll
+*.exe
+*.o
+*.so
+# Dependency directories
+.dub/
+.hypothesis/
+.tox/
+dist/
+build/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+# Installer logs
+pip-log.txt
+# Translations
+*.mo
+# PyInstaller
+[._]*.spec
+# Mac OS X
+.DS_Store
+.AppleDouble
+.LSOverride
+# Files that might appear on external disks
+.Spotlight-V100
+.Trashes
+# Windows
+# Python virtual environment files
+# Include this section if you use a virtual environment in your project.
+# The specific virtual environment directory name can vary; adjust as needed.
+/.venv/
+/.virtualenv/
