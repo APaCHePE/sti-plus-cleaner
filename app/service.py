@@ -33,7 +33,6 @@ class UsersService:
         if configsCasilla is None:
           print(f"La casilla {casillaParam} no existe en la base de datos")
           return {"status": "ERROR", "message": F"La casilla {casillaParam} no existe en la base de datos", "time": 0}
-        print(f"config RESPONSE  1->{configsCasilla}")
         config = ConfigModel(**configsCasilla)
         print(f"config RESPONSE->{config}")  
         ## Crea una única conexión SFTP
@@ -55,36 +54,14 @@ class UsersService:
         for param in config.sftpPathExterna:
           print(f"param -> {param}")
           listFiles=findFilesByProcessCasillaFolderAndFilenameSizeDateTime(process, casillaParam, param.carpeta)
-          print(f"listFiles->{listFiles}")
           filesByCarpetaCasilla={
             "carpeta": param.carpeta,
             "listFiles": listFiles
           }
           listaArchivosEnBDPorCasilla.append(filesByCarpetaCasilla)
         print(f"listaArchivosEnBDPorCasilla->{listaArchivosEnBDPorCasilla}")
-        for db_file_carpeta in listFilesInSFTPByCarpetaCasilla:
-          # Encontrar la carpeta correspondiente en la lista de archivos del SFTP
-          for sftp_file_carpeta in listaArchivosEnBDPorCasilla:
-              if db_file_carpeta["carpeta"] == sftp_file_carpeta["carpeta"]:
-                # Obtener la lista de archivos del SFTP y de la base de datos
-                sftp_file_list = sftp_file_carpeta["listFiles"]
-                db_file_list = db_file_carpeta["listFiles"]
-                # Filtrar la lista de archivos de la base de datos eliminando los archivos existentes en el SFTP
-                db_file_carpeta["listFiles"] = [file for file in db_file_list if file["name"] not in [sftp_file["fileName"] for sftp_file in sftp_file_list]]
-        print(f"Final filtered listFilesInSFTPByCarpetaCasilla: {listFilesInSFTPByCarpetaCasilla}")
-
         
-        
-        sftp_connection_interna = SftpAmbassadorReadServer(config.sftpUserInterna, config.sftpPassInterna, config.sftpHostInterna, config.sftpPortInterna)
-        # ELIMINAR ARCHIVOS 
-        UsersService.eliminarArchivosEnServidorBancoRipley(sftp_connection_interna,listFilesInSFTPByCarpetaCasilla)
-        
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print(f"Tiempo total de ejecución: {elapsed_time} segundos")
-        return {"status": "OK", "message": "Se han subido los archivos a Cloud Storage", "time": elapsed_time}
-        
-        listFilesByCarpetaCasillaInterna = []
+        '''listFilesInSFTPByCarpetaCasillaInterna = []
         for param in config.sftpPathInterna:
           print(f"param -> {param}")
           # Descarga los archivos de SFTP
@@ -93,11 +70,37 @@ class UsersService:
             "carpeta": param.carpeta,
             "listFiles": listFiles
           }
-          listFilesByCarpetaCasillaInterna.append(filesByCarpetaCasilla)
+          listFilesInSFTPByCarpetaCasillaInterna.append(filesByCarpetaCasilla)
         # Sube los archivos a Cloud Storage
-        print(f"listFilesByCarpetoCasilla->{listFilesByCarpetaCasillaInterna}")
+        print(f"listFilesByCarpetoCasilla->{listFilesInSFTPByCarpetaCasillaInterna}")'''
         
-
+        result = []
+        for sftp_file_carpeta in listFilesInSFTPByCarpetaCasilla:
+            for db_file_carpeta in listaArchivosEnBDPorCasilla:
+                if db_file_carpeta["carpeta"] == sftp_file_carpeta["carpeta"]:
+                    db_files = db_file_carpeta["listFiles"]
+                    sftp_files = sftp_file_carpeta["listFiles"]
+                    db_file_carpeta["listFiles"] = [db_file for db_file in db_files if db_file["fileName"] not in [sftp_file["name"] for sftp_file in sftp_files]]
+                    result.append(db_file_carpeta)
+                    break
+                  
+        print(f"Final filtered result: {result}")
+        
+        sftp_connection_interna = SftpAmbassadorReadServer(config.sftpUserInterna, config.sftpPassInterna, config.sftpHostInterna, config.sftpPortInterna)
+        # ELIMINAR ARCHIVOS 
+        
+        listaFInalDeArchivosEliminadosPorCarpeta = []
+        for param in config.sftpPathInterna:
+          print(f"param deletes -> {param}")
+          listFilesEliminados = UsersService.eliminarArchivosEnServidorBancoRipley(sftp_connection_interna, param, result)
+          filesByCarpetaCasilla={
+            "carpeta": param.carpeta,
+            "listFiles": listFilesEliminados
+          }
+          listaFInalDeArchivosEliminadosPorCarpeta.append(filesByCarpetaCasilla)
+        
+        print(f"listaFInalDeArchivosEliminadosPorCarpeta->{listaFInalDeArchivosEliminadosPorCarpeta}")
+        
         sftp_connection.close()
         sftp_connection_interna.close()
         end_time = time.time()
@@ -105,22 +108,31 @@ class UsersService:
         print(f"Tiempo total de ejecución: {elapsed_time} segundos")
         return {"status": "OK", "message": "Se han subido los archivos a Cloud Storage", "time": elapsed_time}
       
-    def eliminarArchivosEnServidorBancoRipley(sftp_connection_interna, listaDepuradaDeFiles):
+    def eliminarArchivosEnServidorBancoRipley(sftp_connection_interna, sftp, listaDepuradaDeFiles):
       # for carpeta in listFilesByCarpetaCasillaInterna:
       #   for file in carpeta.get('listFiles'):
       #     print(f"Validation carpeta for file -> {file}")
-          print(f"PROCESO -> listaDepuradaDeFiles -> {listaDepuradaDeFiles}")
-          for carpetaDepurada in listaDepuradaDeFiles:
-              for fileDepurado in carpetaDepurada.get('listFiles'):
-                  print(f"Eliminando archivo en servidor interno -> {fileDepurado}")
-                  try:
-                      remote_path = fileDepurado.get('carpeta')
-                      filename = fileDepurado.get('name')
-                      print(f"Archivo {filename} eliminado en {remote_path}/{filename}")
-                      sftp_connection_interna.remove(f"{remote_path}/{filename}")
-                  except Exception as e:
-                      print(f"No se pudo eliminar {filename} en {remote_path}. Error: {e}")
-                  break
-              break
-          # break
-          print({"status": "OK", "message": "Se han eliminado los archivos en el servidor interno"})
+      listArchivoEliminador = []
+      print(f"PROCESO -> listaDepuradaDeFiles -> {listaDepuradaDeFiles}")
+      for carpetaDepurada in listaDepuradaDeFiles:
+          print(f"PROCESO_2 -> carpetaDepurada -> {carpetaDepurada}")
+          if carpetaDepurada.get('carpeta') == sftp.carpeta:
+            print(f"PROCESO_3 -> sftp.carpeta -> {sftp.carpeta}")
+            for fileDepurado in carpetaDepurada.get('listFiles'):
+                print(f"Eliminando archivo en servidor interno -> {fileDepurado}")
+                try:
+                    # Verificar si el archivo existe
+                    remote_path = sftp.path
+                    filename = fileDepurado.get('fileName')
+                    sftp_connection_interna.stat(f"{remote_path}/{filename}")
+                    print(f"El archivo {filename} existe en {remote_path}")
+                    
+                    print(f"Archivo {filename} eliminado en {remote_path}/{filename}")
+                    sftp_connection_interna.remove(f"{remote_path}/{filename}")
+                    listArchivoEliminador.append(fileDepurado)
+                    print({"status": "OK", "message": "Se han eliminado el archivo en el servidor interno "})
+                except Exception as e:
+                    print(f"No se pudo eliminar {filename} en {remote_path}. Error: {e}")
+                break
+            
+      return listArchivoEliminador

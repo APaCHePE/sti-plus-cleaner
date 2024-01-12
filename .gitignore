@@ -4,6 +4,7 @@ __pycache__/
 *.pyo
 *.pyd
 *$py.class
+
 # Logs and databases
 *.log
 *.sqlitedb
@@ -35,17 +36,20 @@ htmlcov/
 
 # Virtual environment
 venv/
-ENV/
 env/
 
-
 # Project specific directories
+node_modules/
+dist/
+
 # Compiled source
 *.com
+*.class
 *.dll
 *.exe
 *.o
 *.so
+
 # Dependency directories
 .dub/
 .hypothesis/
@@ -62,20 +66,35 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
 # Installer logs
 pip-log.txt
+
 # Translations
 *.mo
+
 # PyInstaller
 [._]*.spec
+
 # Mac OS X
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# Thumbnails
+._*
+
 # Files that might appear on external disks
 .Spotlight-V100
 .Trashes
+
 # Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+ehthumbs.db
+
 # Python virtual environment files
 # Include this section if you use a virtual environment in your project.
 # The specific virtual environment directory name can vary; adjust as needed.
