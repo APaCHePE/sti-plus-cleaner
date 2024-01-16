@@ -12,7 +12,7 @@ sys.path.append('modules')
 from modules.logging.logging_default import logger
 from modules.sftp.sftp_read_conn import SftpAmbassadorReadServer, SftpAmbassadorListFilesDetails, SftpAmbassadorListFiles
 from modules.storage.storage import upload
-from modules.mongo.mongo_conect import Files, ConfigModel, insert, findConfigByCasilla, findFilesByProcessCasillaFolderAndFilenameSizeDateTime
+from modules.mongo.mongo_conect import Files, ConfigModel, update, findConfigByCasilla, findFilesByProcessCasillaFolderAndFilenameSizeDateTime
 from modules.api_consume.apis import CarpetaInformacionDirectorioDynamic, Prueba, Socket
 
 class UsersService:
@@ -101,6 +101,9 @@ class UsersService:
         
         print(f"listaFInalDeArchivosEliminadosPorCarpeta->{listaFInalDeArchivosEliminadosPorCarpeta}")
         
+        for file in listaFInalDeArchivosEliminadosPorCarpeta:
+          UsersService.updateFilesInBD(file)
+        
         sftp_connection.close()
         sftp_connection_interna.close()
         end_time = time.time()
@@ -136,3 +139,8 @@ class UsersService:
                 break
             
       return listArchivoEliminador
+    
+    def updateFilesInBD(file): 
+      file["statusFile"] = 'ELIMINADO'
+      update(file.get("_id"),file)
+    
