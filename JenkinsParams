@@ -1,0 +1,11 @@
+REGISTRY_URL_GCP=gcr.io/br-gcp-cicd-devops
+REGISTRY_URL_AWS=841964127262.dkr.ecr.us-east-1.amazonaws.com
+REGISTRY_NAME_GCP=sti-plus
+SLACK_CHANNEL=ci-cd-tef-stiplus
+DOCKERFILE_PATH=Dockerfile
+PROJECT_NAME=proyecto-sti-plus
+VERSION=0.0.1
+AUDITING_URL=https://devops-auditing.bancoripley.cl/sd-auditing-cicd/v1.0.0/auditing/jenkins
+PROJECT_KEY=STI
+SCAN_SOURCE=src
+SCAN_EXCLUDE_FILES=src/test/**
