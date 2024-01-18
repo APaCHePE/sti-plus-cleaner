@@ -102,7 +102,8 @@ class UsersService:
         print(f"listaFInalDeArchivosEliminadosPorCarpeta->{listaFInalDeArchivosEliminadosPorCarpeta}")
         
         for file in listaFInalDeArchivosEliminadosPorCarpeta:
-          UsersService.updateFilesInBD(file)
+          if len(file.listFiles) > 0: 
+            UsersService.updateFilesInBD(file.listFiles)
         
         sftp_connection.close()
         sftp_connection_interna.close()
