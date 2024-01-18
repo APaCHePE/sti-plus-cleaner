@@ -129,15 +129,13 @@ class UsersService:
                     filename = fileDepurado.get('fileName')
                     sftp_connection_interna.stat(f"{remote_path}/{filename}")
                     print(f"El archivo {filename} existe en {remote_path}")
-                    
                     print(f"Archivo {filename} eliminado en {remote_path}/{filename}")
                     sftp_connection_interna.remove(f"{remote_path}/{filename}")
                     listArchivoEliminador.append(fileDepurado)
                     print({"status": "OK", "message": "Se han eliminado el archivo en el servidor interno "})
                 except Exception as e:
-                    print(f"No se pudo eliminar {filename} en {remote_path}. Error: {e}")
-                break
-            
+                    print(f"ERROR: No se pudo eliminar {filename} en {remote_path}. Error: {e}")
+                    
       return listArchivoEliminador
     
     def updateFilesInBD(file): 
