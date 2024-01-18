@@ -67,6 +67,6 @@ docker compose up
 ## docker recuperar imagen docker
 *docker pull apradoch/sti-cleaner:1.0.0* 
 ## retageo a formato GCP
-*docker tag apradoch/sti-cleaner:1.0.0 us-east4-docker.pkg.dev/br-gcp-sti-pp/repos-docker/sti-plus-cleaner:v1.0.0*
+*docker tag apradoch/sti-cleaner:1.0.1 us-east4-docker.pkg.dev/br-gcp-sti-pp/repos-docker/sti-cleaner:v1.0.0*
 ## push imagen a Artifactory Registry
-*docker push us-east4-docker.pkg.dev/br-gcp-sti-pp/repos-docker/sti-plus-cleaner:v1.0.0*
+*docker push us-east4-docker.pkg.dev/br-gcp-sti-pp/repos-docker/sti-cleaner:v1.0.0*
