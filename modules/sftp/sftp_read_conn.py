@@ -105,44 +105,35 @@ def SftpAmbassadorListFiles(sftp: pysftp.Connection, remote_path):
         return [], []
 
 def SftpAmbassadorListFilesDetails(sftp: pysftp.Connection, remote_path):
-    print("invocando funcion SftpAmbassadorListFiles")
+    print("invocando funcion SftpAmbassadorListFilesDetails")
     try:
-        ruta_absoluta = '/cas_05/sat/ripley/ripprod/dat/despat01'
-        remote_path = f"{remote_path}"
+        # print(f"Ruta de trabajo actual: {remote_path}")
+        # remote_path = f"/cas_05/sat/ripley/ripprod/dat/despat01{remote_path}"
         print(f"Ruta de trabajo actual: {remote_path}")
-        file_list = sftp.listdir(remote_path)
-        print(f"file_list: {file_list}")
-
+        
         file_info_list = []
-
-        for item in file_list:
-            item_path = remote_path + '/' + item
+        print(f"Ruta de trabajo actual: {sftp.listdir(remote_path)}")
+        for item in sftp.listdir(remote_path):
+            item_path = f"{remote_path}/{item}"
             is_dir = sftp.isdir(item_path)
-            file_info = {
-                "name": item,
-                "is_dir": is_dir
-            }
-
+            file_info = {"name": item,"is_dir": is_dir}
             if not is_dir:
                 # Obtener información adicional para archivos no directorios
                 stat_result = sftp.stat(item_path)
                 file_info["size"] = stat_result.st_size
                 file_info["date"] = datetime.datetime.fromtimestamp(stat_result.st_mtime).strftime('%Y-%m-%d')
                 file_info["time"] = datetime.datetime.fromtimestamp(stat_result.st_mtime).strftime('%H:%M:%S')
-
             file_info_list.append(file_info)
-
-        folders = [item for item in file_info_list if item["is_dir"]]
         files = [item for item in file_info_list if not item["is_dir"]]
 
-        return folders, files
-    except Exception as e:
-        print(f"SftpAmbassadorListFiles error occurred: {e}")
-        return [],[]
+        if not files:
+            raise NoFilesFoundError("No se encontraron archivos en el directorio especificado.")
 
-def close_connection(sftp):
-    print("Cerrando conexión")
-    try:
-        sftp.close()
+        print(f"Archivos encontrados: {files}")
+        return files
+
     except Exception as e:
-        print(f"Error al cerrar la conexión: {e}")
+        print(f"SftpAmbassadorListFilesDetails error occurred: {e}")
+
+class NoFilesFoundError(Exception):
+    pass

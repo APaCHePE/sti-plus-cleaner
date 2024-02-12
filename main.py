@@ -9,10 +9,10 @@ load_dotenv()
 
 def main():
     print("Iniciando captura de datos... v1.0.1")
-    casilla = os.getenv('USER')
-    config = os.getenv('PROCESS')
-    print(f"USER->{casilla}")
-    print(f"PROCESS->{config}")
-    UsersService.cleaner(casilla, config)
+    
+    user = os.getenv('USER')
+    process = os.getenv('PROCESS')
+    print(f"USER->{user}|PROCESS->{process}")
+    UsersService.cleaner(user, process)
 if __name__ == "__main__":
     main()
