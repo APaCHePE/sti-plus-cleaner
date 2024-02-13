@@ -27,10 +27,11 @@ class UsersService:
     def cleaner(user, process) -> List[dict]:
         start_time = time.time()
         codigo_unico = str(uuid.uuid4())
+        statusFilesDeleted = "COMPLETE"
         print(f"CODIGO UNICO -> {codigo_unico}")
         try:
           # Verifica si existe la casilla en la base de datos
-          config = findConfigByCasillaMysql(user)
+          config = findConfigByCasillaMysql(user, statusFilesDeleted)
           for pathExternal in config.externalSftpPath:
               print(f"Path: {pathExternal.directory} -> {pathExternal.path} -> {pathExternal.process} -> {pathExternal.type_path}")
           
@@ -137,5 +138,5 @@ class UsersService:
     
     def updateFilesInBD(file): 
       file["statusFile"] = 'ELIMINADO'
-      updateMysql(file.get("_id"), file)
+      updateMysql(file.get("idFile"), file)
     

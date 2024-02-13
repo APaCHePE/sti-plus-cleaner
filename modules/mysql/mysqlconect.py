@@ -50,10 +50,10 @@ def findFilesByDirectoryFilenameSizeDateTimeMysql(user, directory):
     finally:
         session.close()
         
-def findConfigByCasillaMysql(user: str) -> ConfigModel:
+def findConfigByCasillaMysql(user: str, status: str) -> ConfigModel:
     try:
         print("User:", user)
-        result = session.query(ConfigModel).filter_by(user=user).one()
+        result = session.query(ConfigModel).filter_by(user=user, statusFile=status).one()
         # Obtener el diccionario de atributos del objeto ConfigModel
         api_headers = result.externalApiHeaders
         # Iterar sobre la lista de APIHeader
