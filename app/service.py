@@ -20,12 +20,29 @@ class UsersService:
     def cleaner(user, process) -> List[dict]:
         start_time = time.time()
         codigo_unico = str(uuid.uuid4())
+        statusFilesDeleted = "COMPLETE"
         print(f"CODIGO UNICO -> {codigo_unico}")
         try:
           # Verifica si existe la casilla en la base de datos
-          config = findConfigByCasillaMysql(user)
+          config = findConfigByCasillaMysql(user, statusFilesDeleted)
           # for pathExternal in config.externalSftpPath:
           #     print(f"Path: {pathExternal.directory} -> {pathExternal.path} -> {pathExternal.process} -> {pathExternal.type_path}")
+          
+          with SftpAmbassadorReadServer(config.externalSftpUser, config.externalSftpPassword, config.externalSftpHost, config.externalSftpPort) as sftp_connection:
+            ## Utiliza la biblioteca magic para obtener el tipo de archivo
+            listFilesInSFTPByCarpetaCasilla = [
+              {"carpeta": param.directory, "listFiles": listFiles}
+              for param in config.externalSftpPath
+              if (listFiles := SftpAmbassadorListFilesDetails(sftp_connection, remote_path=param.path))
+            ]
+          
+          with SftpAmbassadorReadServer(config.externalSftpUser, config.externalSftpPassword, config.externalSftpHost, config.externalSftpPort) as sftp_connection:
+            ## Utiliza la biblioteca magic para obtener el tipo de archivo
+            listFilesInSFTPByCarpetaCasilla = [
+              {"carpeta": param.directory, "listFiles": listFiles}
+              for param in config.externalSftpPath
+              if (listFiles := SftpAmbassadorListFilesDetails(sftp_connection, remote_path=param.path))
+            ]
           
           with SftpAmbassadorReadServer(config.externalSftpUser, config.externalSftpPassword, config.externalSftpHost, config.externalSftpPort) as sftp_connection:
             ## Utiliza la biblioteca magic para obtener el tipo de archivo
@@ -170,5 +187,5 @@ class UsersService:
     
     def updateFilesInBD(file): 
       file["statusFile"] = 'ELIMINADO'
-      updateMysql(file.get("_id"), file)
+      updateMysql(file.get("idFile"), file)
     
