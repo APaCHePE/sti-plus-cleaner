@@ -1,4 +1,4 @@
-image: python:3.9.15-alpine3.16 # utilizar misma imagen de docker que en el dockerfile
+image: python:3.8.10-slim # utilizar misma imagen de docker que en el dockerfile
 
 clone:
   depth: full
@@ -15,7 +15,7 @@ definitions:
           - source JenkinsParams
           - export REPOSITORY_NAME=$(echo $BITBUCKET_REPO_FULL_NAME |  sed 's|.*/||')
           # - go test 
-          - pipe: sonarsource/sonarcloud-scan:1.4.0
+          - pipe: sonarsource/sonarcloud-scan:2.0.0
             variables:
               EXTRA_ARGS: >
                 -Dsonar.organization=banco-ripley
