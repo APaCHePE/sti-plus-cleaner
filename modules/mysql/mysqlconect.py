@@ -4,11 +4,12 @@ from sqlalchemy.orm import sessionmaker, joinedload
 from sqlalchemy.exc import NoResultFound
 from .modelconfig import ConfigModel
 from .modelfile import File
+import os
 
 Base = declarative_base()
 
 # Configurar la conexión a la base de datos MySQL
-DATABASE_URL = "mysql+mysqlconnector://root:@35.236.216.155/stiplus"
+DATABASE_URL = os.getenv('MYSQL_URL')
 engine = create_engine(DATABASE_URL)
 Base.metadata.create_all(bind=engine)
 
@@ -16,10 +17,10 @@ Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-def findFilesByStatusAndProcessMysql(status, typeProcess):
+def findFilesByStatusAndProcessMysql(status, user, directory):
     try:
-        print("STATUS: " + status + " TYPE: " + typeProcess)
-        result = session.query(File).filter_by(statusFile=status, typeProcess=typeProcess).all()
+        print("STATUS: " + status + " USER: " + user)
+        result = session.query(File).filter_by(statusFile=status, user=user, directory=directory).all()
         print("Found files:", result)
         if len(result) == 0:
             print("No files found")
@@ -38,11 +39,13 @@ def findFilesByDirectoryFilenameSizeDateTimeMysql(user, directory):
         result = session.query(File).filter_by(
             user=user,
             directory=directory
-        ).first()
-        if result is None:
-            raise FileNotFoundError("No se encontró archivo para el usuario")
-        print("[findFilesByDirectoryFilenameSizeDateTimeMysql] [FIN]",result.__dict__)
-        return result.__dict__
+        ).all()
+    
+        if len(result) == 0:
+            print("No files found")
+            return None
+        print("[findFilesByDirectoryFilenameSizeDateTimeMysql] [FIN]",result)
+        return [file.__dict__ for file in result]
     except FileNotFoundError as e:
         # Manejo genérico de excepciones, puedes personalizarlo según tus necesidades.
         print(f"FileNotFoundError: {e}")
@@ -57,21 +60,21 @@ def findConfigByCasillaMysql(user: str) -> ConfigModel:
         # Obtener el diccionario de atributos del objeto ConfigModel
         api_headers = result.externalApiHeaders
         # Iterar sobre la lista de APIHeader
-        for api_header in api_headers:
-            print("API HEADER", api_header.name, api_header.value)
+        # for api_header in api_headers:
+        #     print("API HEADER", api_header.name, api_header.value)
 
         api_query_params = result.externalApiQueryParams
         # Iterar sobre la lista de APIHeader
-        for api_header in api_query_params:
-            print("API PARAMS", api_header.process, api_header.directory, api_header.params)
+        # for api_header in api_query_params:
+        #     print("API PARAMS", api_header.process, api_header.directory, api_header.params)
             
         externalSftpPath = result.externalSftpPath
         internalSftpPath = result.internalSftpPath
         # Iterar sobre la lista de APIHeader
-        for ext_api_paths in externalSftpPath:
-            print("API PATHS", ext_api_paths.directory, ext_api_paths.path, ext_api_paths.process, ext_api_paths.type_path)
-        for int_api_paths in internalSftpPath:
-            print("API PATHS", int_api_paths.directory, int_api_paths.path, int_api_paths.process, int_api_paths.type_path)
+        # for ext_api_paths in externalSftpPath:
+        #     print("API PATHS", ext_api_paths.directory, ext_api_paths.path, ext_api_paths.process, ext_api_paths.type_path)
+        # for int_api_paths in internalSftpPath:
+        #     print("API PATHS", int_api_paths.directory, int_api_paths.path, int_api_paths.process, int_api_paths.type_path)
             
         
         config_dict = result.__dict__
