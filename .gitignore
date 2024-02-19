@@ -1,5 +1,7 @@
 # Byte-compiled / optimized / temporary files
+**/__pycache__/
 __pycache__/
+__pycache__
 *.pyc
 *.pyo
 *.pyd
