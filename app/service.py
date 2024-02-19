@@ -35,22 +35,6 @@ class UsersService:
               for param in config.externalSftpPath
               if (listFiles := SftpAmbassadorListFilesDetails(sftp_connection, remote_path=param.path))
             ]
-          
-          with SftpAmbassadorReadServer(config.externalSftpUser, config.externalSftpPassword, config.externalSftpHost, config.externalSftpPort) as sftp_connection:
-            ## Utiliza la biblioteca magic para obtener el tipo de archivo
-            listFilesInSFTPByCarpetaCasilla = [
-              {"carpeta": param.directory, "listFiles": listFiles}
-              for param in config.externalSftpPath
-              if (listFiles := SftpAmbassadorListFilesDetails(sftp_connection, remote_path=param.path))
-            ]
-          
-          with SftpAmbassadorReadServer(config.externalSftpUser, config.externalSftpPassword, config.externalSftpHost, config.externalSftpPort) as sftp_connection:
-            ## Utiliza la biblioteca magic para obtener el tipo de archivo
-            listFilesInSFTPByCarpetaCasilla = [
-              {"carpeta": param.directory, "listFiles": listFiles}
-              for param in config.externalSftpPath
-              if (listFiles := SftpAmbassadorListFilesDetails(sftp_connection, remote_path=param.path))
-            ]
             print(f"listFilesByCarpetaCasilla | listFiles | ->{listFilesInSFTPByCarpetaCasilla}")
             
             listaArchivosEnBDPorCasilla = [
@@ -135,6 +119,7 @@ class UsersService:
               for param in config.internalSftpPath:
                 print(f"param deletes -> {param}")
                 listFilesEliminados = UsersService.eliminarArchivosEnServidorBancoRipley(sftp_connection_interna, param, result)
+                print(f"return LIST ARCHIVOS {listFilesEliminados}")
                 filesByCarpetaCasilla={
                   "carpeta": param.directory,
                   "listFiles": listFilesEliminados
@@ -165,23 +150,23 @@ class UsersService:
       print(f"PROCESO -> listaDepuradaDeFiles -> {listaDepuradaDeFiles}")
       for carpetaDepurada in listaDepuradaDeFiles:
           print(f"PROCESO_2 -> carpetaDepurada -> {carpetaDepurada}")
-          if carpetaDepurada.get('carpeta') == sftp.directory:
+          if carpetaDepurada.get('directory') == sftp.directory:
             print(f"PROCESO_3 -> sftp.carpeta -> {sftp.directory}")
-            print(f"file depurado{carpetaDepurada.get('listFiles')}")
-            for fileDepurado in carpetaDepurada.get('listFiles'):
-                print(f"Eliminando archivo en servidor interno -> {fileDepurado}")
-                try:
+            print(f"file depurado {carpetaDepurada.get('listFiles')}")
+            # for fileDepurado in carpetaDepurada.get('listFiles'):
+            #     print(f"Eliminando archivo en servidor interno -> {fileDepurado}")
+            try:
                     # Verificar si el archivo existe
-                    remote_path = sftp.path
-                    fileName = fileDepurado.get('fileName')
-                    sftp_connection_interna.stat(f"{remote_path}/{fileName}")
-                    print(f"El archivo {fileName} existe en {remote_path}")
-                    print(f"Archivo {fileName} eliminado en {remote_path}/{fileName}")
-                    sftp_connection_interna.remove(f"{remote_path}/{fileName}")
-                    listArchivoEliminador.append(fileDepurado)
-                    print({"status": "OK", "message": "Se han eliminado el archivo en el servidor interno "})
-                except Exception as e:
-                    print(f"ERROR: No se pudo eliminar {fileName} en {remote_path}. Error: {e}")
+              remote_path = sftp.path
+              fileName = carpetaDepurada.get('fileName')
+              sftp_connection_interna.stat(f"{remote_path}/{fileName}")
+              print(f"El archivo {fileName} existe en {remote_path}")
+              print(f"Archivo {fileName} eliminado en {remote_path}/{fileName}")
+              sftp_connection_interna.remove(f"{remote_path}/{fileName}")
+              listArchivoEliminador.append(carpetaDepurada)
+              print({"status": "OK", "message": "Se han eliminado el archivo en el servidor interno "})
+            except Exception as e:
+                print(f"ERROR: No se pudo eliminar {fileName} en {remote_path}. Error: {e}")
                     
       return listArchivoEliminador
     
