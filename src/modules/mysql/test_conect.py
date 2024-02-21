@@ -1,5 +1,5 @@
 # mysqlconect.py
-
+import os
 import mysql.connector
 import unittest
 
@@ -7,10 +7,10 @@ def test_mysql_connection():
     try:
         # Configura los detalles de conexión a tu base de datos MySQL
         connection = mysql.connector.connect(
-            host="35.236.216.155",
-            user="root",
-            password="",
-            database="stiplus"
+            host=os.getenv('MYSQL_URL'),
+            user=os.getenv('MYSQL_USER'),
+            password=os.getenv('MYSQL_PASS'),
+            database=os.getenv('MYSQL_DATABASE')
         )
 
         # Intenta realizar una consulta de prueba
